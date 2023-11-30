@@ -1,8 +1,7 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import useEmblaCarousel, {EmblaCarouselType} from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import {BannerItem} from '~/common/carouselType';
-import {Image, Pagination, getPaginationVariables} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
 import {NextButton, PrevButton} from './EmblaCarouselArrow';
 
 export const EmblaCarousel = ({dataHomeSlider}: any) => {

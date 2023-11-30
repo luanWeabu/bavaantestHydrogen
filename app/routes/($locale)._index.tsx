@@ -89,7 +89,6 @@ export async function loader({params, context}: LoaderFunctionArgs) {
 export default function Homepage() {
   const {
     primaryHero,
-    secondaryHero,
     tertiaryHero,
     featuredCollections,
     featuredProducts,
