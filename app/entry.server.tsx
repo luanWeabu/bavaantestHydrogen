@@ -10,7 +10,28 @@ export default async function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const {nonce, header, NonceProvider} = createContentSecurityPolicy();
+  const {nonce, header, NonceProvider} = createContentSecurityPolicy({
+    // styleSrc: ["'self'", 'https://cdn.shopify.com'],
+    imgSrc: [
+      "'self'",
+      'https://cdn.shopify.com',
+      'https://cdn.sanity.io',
+      'https://www.youtube.com',
+      'https://theme.truestorefront.com',
+    ],
+    scriptSrc: [
+      "'self'",
+      'https://cdn.shopify.com',
+      'https://cdn.sanity.io',
+      'https://www.youtube.com',
+    ],
+    frameSrc: [
+      "'self'",
+      'https://cdn.shopify.com',
+      'https://cdn.sanity.io',
+      'https://www.youtube.com',
+    ],
+  });
   const body = await renderToReadableStream(
     <NonceProvider>
       <RemixServer context={remixContext} url={request.url} />

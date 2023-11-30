@@ -8,6 +8,9 @@ import {MEDIA_FRAGMENT, PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
 import {getHeroPlaceholder} from '~/lib/placeholders';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
+import {EmblaCarousel} from '~/components/Carousel';
+import getHomeClient from '~/data/strapi/getHomeContent';
+import {BannerItem} from '~/common/carouselType';
 
 export const headers = routeHeaders;
 
@@ -18,8 +21,6 @@ export async function loader({params, context}: LoaderFunctionArgs) {
     params.locale &&
     params.locale.toLowerCase() !== `${language}-${country}`.toLowerCase()
   ) {
-    // If the locale URL param is defined, yet we still are on `EN-US`
-    // the the locale param must be invalid, send to the 404 page
     throw new Response(null, {status: 404});
   }
 
@@ -28,6 +29,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
   });
 
   const seo = seoPayload.home();
+  const strapiData = await getHomeClient();
 
   return defer({
     shop,
@@ -48,6 +50,14 @@ export async function loader({params, context}: LoaderFunctionArgs) {
         },
       },
     ),
+
+    Carousel: context.storefront.query(COLLECTION_HERO_QUERY, {
+      variables: {
+        handle: 'backcountry',
+        country,
+        language,
+      },
+    }),
     secondaryHero: context.storefront.query(COLLECTION_HERO_QUERY, {
       variables: {
         handle: 'backcountry',
@@ -72,6 +82,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
       pageType: AnalyticsPageType.home,
     },
     seo,
+    strapiData,
   });
 }
 
@@ -82,10 +93,14 @@ export default function Homepage() {
     tertiaryHero,
     featuredCollections,
     featuredProducts,
+    strapiData,
   } = useLoaderData<typeof loader>();
 
   // TODO: skeletons vs placeholders
   const skeletons = getHeroPlaceholder([{}, {}, {}]);
+
+  const homeData: BannerItem =
+    strapiData.data.home.data.attributes.modules[0].bannerItems;
 
   return (
     <>
@@ -93,10 +108,27 @@ export default function Homepage() {
         <Hero {...primaryHero} height="full" top loading="eager" />
       )}
 
+      {strapiData && <EmblaCarousel dataHomeSlider={homeData} />}
+
+      {featuredCollections && (
+        <Suspense>
+          <Await resolve={featuredCollections}>
+            {({collections}: any) => {
+              if (!collections?.nodes) return <></>;
+              return (
+                <FeaturedCollections
+                  collections={collections}
+                  title="Collections"
+                />
+              );
+            }}
+          </Await>
+        </Suspense>
+      )}
       {featuredProducts && (
         <Suspense>
           <Await resolve={featuredProducts}>
-            {({products}) => {
+            {({products}: any) => {
               if (!products?.nodes) return <></>;
               return (
                 <ProductSwimlane
@@ -110,21 +142,10 @@ export default function Homepage() {
         </Suspense>
       )}
 
-      {secondaryHero && (
-        <Suspense fallback={<Hero {...skeletons[1]} />}>
-          <Await resolve={secondaryHero}>
-            {({hero}) => {
-              if (!hero) return <></>;
-              return <Hero {...hero} />;
-            }}
-          </Await>
-        </Suspense>
-      )}
-
       {featuredCollections && (
         <Suspense>
           <Await resolve={featuredCollections}>
-            {({collections}) => {
+            {({collections}: any) => {
               if (!collections?.nodes) return <></>;
               return (
                 <FeaturedCollections
@@ -140,7 +161,7 @@ export default function Homepage() {
       {tertiaryHero && (
         <Suspense fallback={<Hero {...skeletons[2]} />}>
           <Await resolve={tertiaryHero}>
-            {({hero}) => {
+            {({hero}: any) => {
               if (!hero) return <></>;
               return <Hero {...hero} />;
             }}

@@ -2,7 +2,7 @@ import type {HomepageFeaturedProductsQuery} from 'storefrontapi.generated';
 import {ProductCard, Section} from '~/components';
 
 const mockProducts = {
-  nodes: new Array(12).fill(''),
+  nodes: new Array(20).fill(''),
 };
 
 type ProductSwimlaneProps = HomepageFeaturedProductsQuery & {
@@ -23,7 +23,7 @@ export function ProductSwimlane({
           <ProductCard
             product={product}
             key={product.id}
-            className="snap-start w-80"
+            className="snap-start w-full"
           />
         ))}
       </div>
