@@ -453,7 +453,11 @@ export type HomepageFeaturedCollectionsQuery = {
   };
 };
 
-export type MyQueryQueryVariables = StorefrontAPI.Exact<{[key: string]: never}>;
+export type MyQueryQueryVariables = StorefrontAPI.Exact<{
+  query: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
 
 export type MyQueryQuery = {
   collections: {
@@ -1745,7 +1749,7 @@ interface GeneratedQueryTypes {
     return: HomepageFeaturedCollectionsQuery;
     variables: HomepageFeaturedCollectionsQueryVariables;
   };
-  '\n  #graphql\n  query MyQuery {\n  collections(first: 10) {\n    nodes {\n      id\n      description\n      title\n      products(first: 10) {\n        nodes {\n          title\n          vendor\n          id\n          featuredImage {\n            url\n          }\n          requiresSellingPlan\n          priceRange {\n            maxVariantPrice {\n              currencyCode\n              amount\n            }\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n}\n': {
+  '\n  #graphql\n  query MyQuery($query: String!, $country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n  collections(first: 10, query: $query) {\n    nodes {\n      id\n      description\n      title\n      products(first: 10) {\n        nodes {\n          title\n          vendor\n          id\n          featuredImage {\n            url\n          }\n          requiresSellingPlan\n          priceRange {\n            maxVariantPrice {\n              currencyCode\n              amount\n            }\n            minVariantPrice {\n              amount\n              currencyCode\n            }\n          }\n        }\n      }\n    }\n  }\n}\n': {
     return: MyQueryQuery;
     variables: MyQueryQueryVariables;
   };

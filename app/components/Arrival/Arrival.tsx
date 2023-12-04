@@ -2,6 +2,7 @@ import React, {useState, useCallback, useEffect} from 'react';
 import {NextButton, PrevButton} from '../EmblaCarouselArrow';
 import useEmblaCarousel, {EmblaCarouselType} from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
+import 'remixicon/fonts/remixicon.css';
 
 interface Item {
   id: number;
@@ -50,6 +51,7 @@ const renderItems = (dataArrivalData: any, title: string): JSX.Element => {
     const numericIdNumber = parseInt(numericId, 10);
     return numericIdNumber;
   });
+  console.log(dataArrivalData);
 
   return (
     <div className="relative" key={getDataArrivalData}>
@@ -65,6 +67,33 @@ const renderItems = (dataArrivalData: any, title: string): JSX.Element => {
                         <div className="embla__slide_arrival" key={product.id}>
                           <div>
                             <img src={product.featuredImage.url} alt="" />
+                          </div>
+                          <div className="flex flex-col flex-1 gap-1">
+                            <div className="flex items-center justify-between h-6 mt-1">
+                              <div className="text-sm text-gray-600">
+                                {product.vendor}
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div>
+                                  <i className="ri-arrow-left-right-line"></i>
+                                </div>
+                                <div>
+                                  <i className="ri-heart-line"></i>
+                                </div>
+                              </div>
+                            </div>
+                            <div>
+                              <p>{product.title}</p>
+                            </div>
+                            <div>
+                              <p>
+                                {product.priceRange.minVariantPrice.amount}{' '}
+                                {
+                                  product.priceRange.minVariantPrice
+                                    .currencyCode
+                                }
+                              </p>
+                            </div>
                           </div>
                         </div>
                       ))}
@@ -137,7 +166,7 @@ export const Arrival = ({getArrivalTitle, getArrivalData}: any) => {
                       >
                         <span
                           className={`${
-                            filterArrival.title === item.attributes.title
+                            showProducts === item.attributes.title
                               ? 'underline'
                               : ''
                           }`}

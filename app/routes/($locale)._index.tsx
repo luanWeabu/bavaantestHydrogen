@@ -13,11 +13,13 @@ import getHomeClient from '~/data/strapi/getHomeContent';
 import {BannerItem} from '~/common/carouselType';
 import {getSliderProductTitle} from '~/data/strapi/getSliderProduct';
 import {Arrival} from '~/components/Arrival/Arrival';
+import {Session} from '@shopify/shopify-api';
 
 export const headers = routeHeaders;
 
 export async function loader({params, context}: LoaderFunctionArgs) {
   const {language, country} = context.storefront.i18n;
+  const {session} = context;
 
   if (
     params.locale &&
@@ -32,7 +34,21 @@ export async function loader({params, context}: LoaderFunctionArgs) {
 
   const seo = seoPayload.home();
   const strapiData = await getHomeClient();
-  const getArrivalTitle = await getSliderProductTitle();
+  const getArrivalTitleStrapi: any = await getSliderProductTitle();
+
+  let queryString = '';
+  if (getArrivalTitleStrapi) {
+    const StrapiHomeArrival =
+      getArrivalTitleStrapi.data.home.data.attributes.modules
+        .filter((module: any) => module.collections)
+        .map((module: any) => module.collections.data)
+        .flat();
+    queryString = StrapiHomeArrival.map(
+      (item: any) => `(title:${item.attributes.title})`,
+    ).join(' OR ');
+
+    session.set('StrapiHomeArrival', queryString);
+  }
 
   return defer({
     shop,
@@ -86,8 +102,14 @@ export async function loader({params, context}: LoaderFunctionArgs) {
     },
     seo,
     strapiData,
-    getArrivalTitle,
-    getArrivalData: context.storefront.query(PRODUCT_QUERY_ARRIVAL),
+    getArrivalTitleStrapi,
+    getArrivalData: await context.storefront.query(PRODUCT_QUERY_ARRIVAL, {
+      variables: {
+        query: session.get('StrapiHomeArrival'),
+        country,
+        language,
+      },
+    }),
   });
 }
 
@@ -98,7 +120,7 @@ export default function Homepage() {
     featuredCollections,
     featuredProducts,
     strapiData,
-    getArrivalTitle,
+    getArrivalTitleStrapi,
     getArrivalData,
   } = useLoaderData<typeof loader>();
 
@@ -116,13 +138,13 @@ export default function Homepage() {
 
       {strapiData && <EmblaCarousel dataHomeSlider={homeData} />}
 
-      {getArrivalTitle && (
+      {getArrivalTitleStrapi && (
         <Suspense>
           <Await resolve={getArrivalData}>
             {({collections}: any) => {
               return (
                 <Arrival
-                  getArrivalTitle={getArrivalTitle}
+                  getArrivalTitle={getArrivalTitleStrapi}
                   getArrivalData={collections}
                 />
               );
@@ -269,8 +291,9 @@ export const FEATURED_COLLECTIONS_QUERY = `#graphql
 
 export const PRODUCT_QUERY_ARRIVAL = `
   #graphql
-  query MyQuery {
-  collections(first: 10) {
+  query MyQuery($query: String!, $country: CountryCode, $language: LanguageCode)
+  @inContext(country: $country, language: $language) {
+  collections(first: 10, query: $query) {
     nodes {
       id
       description
