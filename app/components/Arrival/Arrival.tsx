@@ -2,7 +2,6 @@ import React, {useState, useCallback, useEffect} from 'react';
 import {NextButton, PrevButton} from '../EmblaCarouselArrow';
 import useEmblaCarousel, {EmblaCarouselType} from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
-import ArrivalStyle from './styles.module.css';
 
 interface Item {
   id: number;
@@ -66,7 +65,7 @@ const renderItems = (dataArrivalData: any, title: string): JSX.Element => {
         return null;
       })}
 
-      <div className="embla__buttons flex justify-between w-[95vw] ">
+      <div className="embla__buttons_arrival  flex justify-between w-[95vw] ">
         <PrevButton
           onClick={scrollPrev}
           disabled={prevBtnDisabled}
@@ -119,7 +118,15 @@ export const Arrival = ({getArrivalTitle, getArrivalData}: any) => {
                           setShowProducts(`${item.attributes.title}`)
                         }
                       >
-                        <span>{item.attributes.title}</span>
+                        <span
+                          className={`${
+                            showProducts === item.attributes.title
+                              ? 'underline'
+                              : ''
+                          }`}
+                        >
+                          {item.attributes.title}
+                        </span>
                       </button>
                     </div>
                   );

@@ -210,7 +210,7 @@ shop-pay-button {
   transform: translateY(-50%);
   left: 1.6rem;
 }
-.embla__buttons {
+.embla__buttons_arrival {
   display: flex;
   align-items: center;
   position: absolute;
