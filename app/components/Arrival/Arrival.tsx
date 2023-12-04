@@ -40,8 +40,19 @@ const renderItems = (dataArrivalData: any, title: string): JSX.Element => {
     emblaApi.on('select', onSelect);
   }, [emblaApi, onSelect]);
 
+  const getDataArrivalData = dataArrivalData.map((item: any) => {
+    const collectionIdString = item.id;
+
+    const lastIndex = collectionIdString.lastIndexOf('/');
+
+    const numericId = collectionIdString.slice(lastIndex + 1);
+
+    const numericIdNumber = parseInt(numericId, 10);
+    return numericIdNumber;
+  });
+
   return (
-    <div className="relative">
+    <div className="relative" key={getDataArrivalData}>
       {dataArrivalData.map((item: any) => {
         if (item.title === title) {
           return (
@@ -52,7 +63,9 @@ const renderItems = (dataArrivalData: any, title: string): JSX.Element => {
                     <div className="embla__container_arrival">
                       {item.products.nodes.map((product: any) => (
                         <div className="embla__slide_arrival" key={product.id}>
-                          <img src={product.featuredImage.url} alt="" />
+                          <div>
+                            <img src={product.featuredImage.url} alt="" />
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -88,13 +101,17 @@ export const Arrival = ({getArrivalTitle, getArrivalData}: any) => {
     getArrivalTitle.data.home.data.attributes.modules[2];
 
   const dataArrivalData = getArrivalData.nodes.filter((item: any) => {
-    if (
-      item.title === 'Men' ||
-      item.title === 'Women' ||
-      item.title === 'Accessories'
-    ) {
-      return item.products;
-    }
+    return item.products;
+  });
+
+  const filterCollectionsTitleArrival = dataArriavalTitle.collections.data.map(
+    (item: any) => {
+      return item.attributes.title;
+    },
+  );
+
+  const filterArrival = dataArrivalData.filter((item: any) => {
+    return filterCollectionsTitleArrival.includes(item.title);
   });
 
   return (
@@ -120,7 +137,7 @@ export const Arrival = ({getArrivalTitle, getArrivalData}: any) => {
                       >
                         <span
                           className={`${
-                            showProducts === item.attributes.title
+                            filterArrival.title === item.attributes.title
                               ? 'underline'
                               : ''
                           }`}
@@ -134,11 +151,11 @@ export const Arrival = ({getArrivalTitle, getArrivalData}: any) => {
               </div>
             </div>
             <div>
-              {showProducts === 'Men' && renderItems(dataArrivalData, 'Men')}
-              {showProducts === 'Women' &&
-                renderItems(dataArrivalData, 'Women')}
-              {showProducts === 'Accessories' &&
-                renderItems(dataArrivalData, 'Accessories')}
+              {filterArrival.map(
+                (filterItem: any) =>
+                  filterItem.title === showProducts &&
+                  renderItems(filterArrival, filterItem.title),
+              )}
             </div>
           </div>
         )}
