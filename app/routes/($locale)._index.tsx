@@ -11,6 +11,8 @@ import {routeHeaders} from '~/data/cache';
 import {EmblaCarousel} from '~/components/Carousel';
 import getHomeClient from '~/data/strapi/getHomeContent';
 import {BannerItem} from '~/common/carouselType';
+import {getSliderProductTitle} from '~/data/strapi/getSliderProduct';
+import {Arrival} from '~/components/Arrival/Arrival';
 
 export const headers = routeHeaders;
 
@@ -30,6 +32,7 @@ export async function loader({params, context}: LoaderFunctionArgs) {
 
   const seo = seoPayload.home();
   const strapiData = await getHomeClient();
+  const getArrivalTitle = await getSliderProductTitle();
 
   return defer({
     shop,
@@ -83,6 +86,8 @@ export async function loader({params, context}: LoaderFunctionArgs) {
     },
     seo,
     strapiData,
+    getArrivalTitle,
+    getArrivalData: context.storefront.query(PRODUCT_QUERY_ARRIVAL),
   });
 }
 
@@ -93,6 +98,8 @@ export default function Homepage() {
     featuredCollections,
     featuredProducts,
     strapiData,
+    getArrivalTitle,
+    getArrivalData,
   } = useLoaderData<typeof loader>();
 
   // TODO: skeletons vs placeholders
@@ -109,21 +116,21 @@ export default function Homepage() {
 
       {strapiData && <EmblaCarousel dataHomeSlider={homeData} />}
 
-      {featuredCollections && (
+      {getArrivalTitle && (
         <Suspense>
-          <Await resolve={featuredCollections}>
+          <Await resolve={getArrivalData}>
             {({collections}: any) => {
-              if (!collections?.nodes) return <></>;
               return (
-                <FeaturedCollections
-                  collections={collections}
-                  title="Collections"
+                <Arrival
+                  getArrivalTitle={getArrivalTitle}
+                  getArrivalData={collections}
                 />
               );
             }}
           </Await>
         </Suspense>
       )}
+
       {featuredProducts && (
         <Suspense>
           <Await resolve={featuredProducts}>
@@ -259,3 +266,37 @@ export const FEATURED_COLLECTIONS_QUERY = `#graphql
     }
   }
 ` as const;
+
+export const PRODUCT_QUERY_ARRIVAL = `
+  #graphql
+  query MyQuery {
+  collections(first: 10) {
+    nodes {
+      id
+      description
+      title
+      products(first: 10) {
+        nodes {
+          title
+          vendor
+          id
+          featuredImage {
+            url
+          }
+          requiresSellingPlan
+          priceRange {
+            maxVariantPrice {
+              currencyCode
+              amount
+            }
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+}
+`;

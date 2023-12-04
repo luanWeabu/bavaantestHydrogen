@@ -210,6 +210,15 @@ shop-pay-button {
   transform: translateY(-50%);
   left: 1.6rem;
 }
+.embla__buttons {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 1.6rem;
+  padding-left: 12px;
+}
 .embla__button {
   z-index: 1;
   color: var(--background-site);
@@ -223,7 +232,47 @@ shop-pay-button {
 .embla__button:disabled {
   opacity: 0.3;
 }
+.embla__button_arrival {
+  z-index: 1;
+  color: black;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  width: 4rem;
+  height: 4rem;
+}
+.embla__button_arrival:disabled {
+  opacity: 0.4;
+}
 .embla__button__svg {
   width: 65%;
   height: 65%;
+}
+.embla_arrival {
+  --slide-spacing: 1rem;
+  --slide-size: 25%;
+  --slide-height: 19rem;
+  padding: 1.6rem;
+}
+.embla__viewport_arrival {
+  overflow: hidden;
+}
+.embla__container_arrival {
+  backface-visibility: hidden;
+  display: flex;
+  touch-action: pan-y;
+  margin-left: calc(var(--slide-spacing) * -1);
+}
+.embla__slide_arrival {
+  flex: 0 0 var(--slide-size);
+  min-width: 0;
+  padding-left: var(--slide-spacing);
+  position: relative;
+}
+.embla__slide__img_arrival {
+  display: block;
+  height: var(--slide-height);
+  width: 100%;
+  object-fit: cover;
 }
